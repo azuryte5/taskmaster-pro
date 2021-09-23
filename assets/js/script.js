@@ -52,7 +52,7 @@ $(".list-group").on("click", "p", function () {
     var index = $(this).closest(".list-group-item").index();
     tasks[status][index].text = text;
     saveTasks();
-    // recreate p element 
+    // recreate p element
     var taskP = $("<p>").addClass("m-1").text(text);
 
     // replace textarea with p element
@@ -105,13 +105,10 @@ $("#remove-tasks").on("click", function () {
   saveTasks();
 });
 
-
 // due date was clicked
-$(".list-group").on("click", "span", function() {
+$(".list-group").on("click", "span", function () {
   // get current text
-  var date = $(this)
-    .text()
-    .trim();
+  var date = $(this).text().trim();
 
   // create new input element
   var dateInput = $("<input>")
@@ -127,22 +124,15 @@ $(".list-group").on("click", "span", function() {
 });
 
 // value of due date was changed
-$(".list-group").on("blur", "input[type='text']", function() {
+$(".list-group").on("blur", "input[type='text']", function () {
   // get current text
-  var date = $(this)
-    .val()
-    .trim();
+  var date = $(this).val().trim();
 
   // get the parent ul's id attribute
-  var status = $(this)
-    .closest(".list-group")
-    .attr("id")
-    .replace("list-", "");
+  var status = $(this).closest(".list-group").attr("id").replace("list-", "");
 
   // get the task's position in the list of other li elements
-  var index = $(this)
-    .closest(".list-group-item")
-    .index();
+  var index = $(this).closest(".list-group-item").index();
 
   // update task in array and re-save to localstorage
   tasks[status][index].date = date;
@@ -155,6 +145,73 @@ $(".list-group").on("blur", "input[type='text']", function() {
 
   // replace input with span element
   $(this).replaceWith(taskSpan);
+});
+
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function (event) {
+    console.log("activate", this);
+  },
+  deactivate: function (event) {
+    console.log("deactivate", this);
+  },
+  over: function (event) {
+    console.log("over", event.target);
+  },
+  out: function (event) {
+    console.log("out", event.target);
+  },
+
+  //this, each are a hard concept. But it has to do with variables that are only in the function.
+  update: function (event) {
+    // loop over current set of children in sortable list
+    // loop over current set of children in sortable list
+    // array to store the task data in
+    var tempArr = [];
+
+    // loop over current set of children in sortable list
+    $(this)
+      .children()
+      .each(function () {
+        var text = $(this).find("p").text().trim();
+
+        var date = $(this).find("span").text().trim();
+
+        // add task data to the temp array as an object
+        tempArr.push({
+          text: text,
+          date: date,
+        });
+      });
+    // trim down list's ID to match object property
+    var arrName = $(this)
+    .attr("id")
+    .replace("list-", "");
+
+    // update array on tasks object and save
+    tasks[arrName] = tempArr;
+    saveTasks();
+    console.log(tempArr);
+  },
+}
+);
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    console.log("drop");
+    ui.draggable.remove();
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
 });
 
 
